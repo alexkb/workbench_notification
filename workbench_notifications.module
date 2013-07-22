@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Implements hook_workbench_moderation_transition()
+ */
+function workbench_notifications_workbench_moderation_transition($node, $previous_state, $new_state) {
+  if (module_exists('nodejs')) {
+    $output =  '<li class="admin-menu-toolbar-category wbnotification-alert">' . l("Needs Review!", "admin/workbench/needs-review") . '</li>';
+
+    // we need to use different haviours to make this work with admin menu
+    //$commands[] = ajax_command_append('ul#admin-menu-menu', $output);
+    
+    $commands[] = ajax_command_after('#admin-menu-menu li:first', $output);
+    $message = (object) array(
+      'channel' => 'workbench_notifications',
+      'commands' => $commands,
+      'callback' => 'workbenchNotifications',
+    );
+    
+    nodejs_send_content_channel_message($message);
+  }  
+}
+
+/**
+ * Implements hook_init();
+ */
+function workbench_notifications_init() {
+  nodejs_send_content_channel_token('workbench_notifications');
+  drupal_add_js(drupal_get_path('module', 'workbench_notifications') . "/workbench_notifications.js");
+  drupal_add_css(drupal_get_path('module', 'workbench_notifications') . "/workbench_notifications.css");
+}
+
+/**
+* Implements hook_nodejs_user_channels().
+*/
+function workbench_notifications_nodejs_user_channels($account) {
+  if (user_access('administer nodes', $account)) {
+    return array('workbench_notifications');
+  }
+  return array();
+}

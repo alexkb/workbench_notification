@@ -1,0 +1,5 @@
+name = Workbench Notifications
+description = Displays notification alerts about items requiring review, to workbench users.
+core = 7.x
+package = custom
+
